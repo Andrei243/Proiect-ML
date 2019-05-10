@@ -148,11 +148,11 @@ bestres=None
 #     train_labels_predictedd,bestres=svm_classifier_linear(trainData,train_labels,testData,bestC)
 # else:
 #     train_labels_predictedd,bestres=svm_classifier_rbf(trainData,train_labels,testData,bestC)
-train_labels_predictedd,bestres=svm_classifier_linear(trainData,train_labels,testData,100)
+train_labels_predictedd,bestres=svm_classifier_rbf(trainData,train_labels,testData,1000)
 submisie=open("submission.csv","w")
 submisie.write("id,class\n")
 print(str(compute_accuracy(train_labels,train_labels_predictedd)))
-nr_linie=0
+nr_linie = 0
 for i in range(10000, 24001):
     if os.path.isfile(testPath + str(i) + '.csv'):
         submisie.write(str(i)+','+str(bestres[nr_linie])+"\n")

@@ -116,14 +116,14 @@ def compute_accuracy(true_labels, predicted_labels):
     return (true_labels == predicted_labels).mean()
 
 
-Cs = [1e-8, 1e-7, 1e-6, 1e-5, 1.5e-5, 1e-4, 1e-2, 1e-1, 1, 10]
+Cs = [1e-6, 1e-5, 1.5e-5, 1e-4, 1e-2, 1e-1, 1, 10, 100, 1000, 10000]
 bestprob = 0
 bestC = 0
 linbest=True
 trainData, testData = normalize_data(trainData, testData, "standardized")
 trainData, testData = normalize_data(trainData, testData, "min_max")
-trainData, testData = normalize_data(trainData, testData, "l1")
-# trainData, testData = normalize_data(trainData, testData, "l2")
+# trainData, testData = normalize_data(trainData, testData, "l1")
+trainData, testData = normalize_data(trainData, testData, "l2")
 print("Urmeaza verificarea\n")
 for C in Cs:
     train_labels_predictedd, test_labels_predictedd = svm_classifier_linear(trainData, train_labels, testData, C)
@@ -154,5 +154,5 @@ submisie.write("id,class\n")
 
 for i in range(10000, 24001):
     if os.path.isfile(testPath + str(i) + '.csv'):
-        submisie.write(str(i)+','+bestres[0])
-        bestres.pop(0)
+        submisie.write(str(i) + ',' + str(bestres[nr_linie]) + "\n")
+        nr_linie = nr_linie + 1
