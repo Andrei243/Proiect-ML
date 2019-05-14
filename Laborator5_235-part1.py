@@ -15,11 +15,11 @@ def absd(x):
         return -x
 
 
-def imparte_vectori_in_cate_40(Xs):
+def imparte_vectori(Xs):
     vector = []
     el=[]
     for i in range(0,len(Xs)):
-        if i%40==0 and i!=0:
+        if i%33==0 and i!=0:
             vector.append(el)
             el=[]
         el.append(Xs[i])
@@ -39,14 +39,18 @@ def returneaza_statistici_importante(Xs):
     return date
 
 
-def returneaza_vector_important(Xs,Ys,Zs):
+def returneaza_vector_important(Xs, Ys, Zs):
     elemente_importante=[]
 
     vectori=[]
-    vectori=vectori + imparte_vectori_in_cate_40(Xs)+imparte_vectori_in_cate_40(Ys)+imparte_vectori_in_cate_40(Zs)
+    vectori= vectori + imparte_vectori(Xs) + imparte_vectori(Ys) + imparte_vectori(Zs)
     for vector in vectori:
         elemente_importante=elemente_importante+returneaza_statistici_importante(vector)
 
+    elemente_importante = elemente_importante + returneaza_statistici_importante(Xs)
+    elemente_importante = elemente_importante + returneaza_statistici_importante(Ys)
+    elemente_importante = elemente_importante + returneaza_statistici_importante(Zs)
+    # print(len(elemente_importante))
     return elemente_importante
 
 
@@ -129,7 +133,7 @@ with open('train_labels.csv') as csv_file:
         else:
             train_labels.append(int(float(row[1])))
 
-types = [None, "standardized", "min_max", "l1", "l2"]
+types = [None, "standardized", "min_max"]
 
 
 def normalize_data(train_data, test_data, typed=None):
@@ -176,7 +180,7 @@ def compute_accuracy(true_labels, predicted_labels):
     return (true_labels == predicted_labels).mean()
 
 
-Cs = [1e-4, 1e-2, 5e-2, 1e-1, 1, 10, 50, 100, 1000, 10000]
+Cs = [5e-2, 1e-1, 1]
 bestprob = 0
 bestC = 0
 linbest=True
@@ -194,7 +198,7 @@ for type in types:
         prob = compute_accuracy(train_labels, train_labels_predictedd)
         print("linear "+str(prob)+" " + str(C))
         # print("abs( 0.9 - prob) = " + str(absd(0.9-prob))+" abs(0.9 - bestprob) = " + str(absd(0.9-bestprob)))
-        if absd(0.95-prob) < absd(0.95-bestprob):
+        if absd(1-prob) < absd(1-bestprob):
 
             bestprob = prob
             besttype=type
@@ -205,7 +209,7 @@ for type in types:
         train_labels_predictedd, test_labels_predictedd = svm_classifier_rbf(trainData, train_labels, testData, C)
         prob = compute_accuracy(train_labels, train_labels_predictedd)
         print("rbf "+str(prob)+" " +str(C))
-        if abs(0.95-prob)<abs(0.95-bestprob):
+        if abs(1-prob)<abs(1-bestprob):
             bestprob = prob
             besttype=type
             bestC = C

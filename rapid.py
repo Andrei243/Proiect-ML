@@ -212,14 +212,14 @@ print("Urmeaza verificarea\n")
 #             linbest=False
 
 # print(besttype)
-trainData,testData=normalize_data(trainData,testData,None)
+trainData,testData=normalize_data(trainData,testData,"standardized")
 
 if linbest:
     print("linear")
-    train_labels_predictedd,bestres=svm_classifier_linear(trainData,train_labels,testData,10)
+    train_labels_predictedd,bestres=svm_classifier_linear(trainData,train_labels,testData,1)
 else:
     print("rbf")
-    train_labels_predictedd,bestres=svm_classifier_rbf(trainData,train_labels,testData,10)
+    train_labels_predictedd,bestres=svm_classifier_rbf(trainData,train_labels,testData,1)
 print(str(bestC))
 submisie=open("submission.csv", "w")
 submisie.write("id,class\n")
