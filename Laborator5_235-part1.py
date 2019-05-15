@@ -8,21 +8,20 @@ import statistics as st
 csv_writer = csv.writer(open('submission.csv'))
 
 
-def absd(x):
-    if x > 0:
-        return x
-    else:
-        return -x
-
-
-def imparte_vectori(Xs):
+def imparte_vectori(xs):
     vector = []
-    el=[]
-    for i in range(0,len(Xs)):
-        if i%33==0 and i!=0:
+    el = []
+    # print(len(xs))
+    for i in range(0,121):
+        if i % 20 == 0 and i != 0:
             vector.append(el)
             el=[]
-        el.append(Xs[i])
+        el.append(xs[i])
+    # vector.append(el)
+    if len(xs)>120:
+        for i in range(121, len(xs)):
+            el.append(xs[i])
+        vector.append(el)
     return vector
 
 
@@ -54,7 +53,8 @@ def returneaza_vector_important(Xs, Ys, Zs):
     return elemente_importante
 
 
-
+minrow=500
+maxrow=0
 trainData = []
 trainPath = "train/"
 # load train data
@@ -74,7 +74,7 @@ for i in range(10000, 24000):
                 Ys.append(float(row[1]))
                 # element_act.append(float(row[2]))
                 Zs.append(float(row[2]))
-            #     row_count+=1
+                row_count+=1
             # while row_count < 150:
             #     element_act.append(element_act[len(element_act)-4])
             #     element_act.append(element_act[len(element_act)-4])
@@ -85,6 +85,8 @@ for i in range(10000, 24000):
             #     element_act.pop(len(element_act) - 1)
             #     element_act.pop(len(element_act) - 1)
             #     row_count-=1
+            minrow=min(row_count,minrow)
+            maxrow=max(row_count,maxrow)
         # trainData.append(element_act)
         trainData.append(returneaza_vector_important(Xs, Ys, Zs))
 print("Gata traindata")
@@ -107,7 +109,7 @@ for i in range(10000, 24001):
                 Ys.append(float(row[1]))
                 # element_act.append(float(row[2]))
                 Zs.append(float(row[2]))
-        #         row_count+=1
+                row_count+=1
         #
         #     while row_count < 150:
         #         element_act.append(element_act[len(element_act)-4])
@@ -120,9 +122,12 @@ for i in range(10000, 24001):
         #         element_act.pop(len(element_act)-1)
         #         row_count-=1
         # testData.append(element_act)
+        minrow = min(row_count, minrow)
+        maxrow = max(row_count, maxrow)
         testData.append(returneaza_vector_important(Xs, Ys, Zs))
 print("Gata testdata")
 train_labels = []
+print("Minrow = " + str(minrow)+" Maxrow = "+str(maxrow))
 
 with open('train_labels.csv') as csv_file:
     csv_reader=csv.reader(csv_file, delimiter=',')
@@ -198,7 +203,7 @@ for type in types:
         prob = compute_accuracy(train_labels, train_labels_predictedd)
         print("linear "+str(prob)+" " + str(C))
         # print("abs( 0.9 - prob) = " + str(absd(0.9-prob))+" abs(0.9 - bestprob) = " + str(absd(0.9-bestprob)))
-        if absd(1-prob) < absd(1-bestprob):
+        if abs(1-prob) < abs(1-bestprob):
 
             bestprob = prob
             besttype=type
