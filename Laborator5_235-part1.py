@@ -4,6 +4,7 @@ import csv
 from sklearn import preprocessing
 from sklearn import svm
 import statistics as st
+import numpy as np
 
 csv_writer = csv.writer(open('submission.csv'))
 
@@ -12,29 +13,30 @@ def imparte_vectori(xs):
     vector = []
     el = []
     # print(len(xs))
-    for i in range(0,121):
+    for i in range(0,134):
         if i % 20 == 0 and i != 0:
             vector.append(el)
             el=[]
         el.append(xs[i])
-    # vector.append(el)
-    if len(xs)>120:
-        for i in range(121, len(xs)):
-            el.append(xs[i])
-        vector.append(el)
+    for i in range(134, len(xs)):
+        el.append(xs[i])
+    vector.append(el)
     return vector
 
 
 def returneaza_statistici_importante(Xs):
     date = []
     date.append(st.mean(Xs))
+    date.append(min(Xs))
+    date.append(np.quantile(Xs,0.25))
     date.append(st.median(Xs))
+    date.append(np.quantile(Xs,0.75))
+    date.append(max(Xs))
     date.append(st.pstdev(Xs))
     date.append(st.pvariance(Xs))
     date.append(st.stdev(Xs))
     date.append(st.variance(Xs))
-    date.append(min(Xs))
-    date.append(max(Xs))
+
     return date
 
 
@@ -49,7 +51,6 @@ def returneaza_vector_important(Xs, Ys, Zs):
     elemente_importante = elemente_importante + returneaza_statistici_importante(Xs)
     elemente_importante = elemente_importante + returneaza_statistici_importante(Ys)
     elemente_importante = elemente_importante + returneaza_statistici_importante(Zs)
-    # print(len(elemente_importante))
     return elemente_importante
 
 
@@ -68,26 +69,12 @@ for i in range(10000, 24000):
             Ys = []
             Zs = []
             for row in csv_reader:
-                # element_act.append(float(row[0]))
                 Xs.append(float(row[0]))
-                # element_act.append(float(row[1]))
                 Ys.append(float(row[1]))
-                # element_act.append(float(row[2]))
                 Zs.append(float(row[2]))
-                row_count+=1
-            # while row_count < 150:
-            #     element_act.append(element_act[len(element_act)-4])
-            #     element_act.append(element_act[len(element_act)-4])
-            #     element_act.append(element_act[len(element_act)-4])
-            #     row_count += 1
-            # while row_count > 150:
-            #     element_act.pop(len(element_act) - 1)
-            #     element_act.pop(len(element_act) - 1)
-            #     element_act.pop(len(element_act) - 1)
-            #     row_count-=1
-            minrow=min(row_count,minrow)
-            maxrow=max(row_count,maxrow)
-        # trainData.append(element_act)
+                row_count += 1
+            minrow=min(row_count, minrow)
+            maxrow=max(row_count, maxrow)
         trainData.append(returneaza_vector_important(Xs, Ys, Zs))
 print("Gata traindata")
 testData = []
@@ -103,25 +90,11 @@ for i in range(10000, 24001):
             Ys = []
             Zs = []
             for row in csv_reader:
-                # element_act.append(float(row[0]))
                 Xs.append(float(row[0]))
-                # element_act.append(float(row[1]))
                 Ys.append(float(row[1]))
-                # element_act.append(float(row[2]))
                 Zs.append(float(row[2]))
                 row_count+=1
-        #
-        #     while row_count < 150:
-        #         element_act.append(element_act[len(element_act)-4])
-        #         element_act.append(element_act[len(element_act)-4])
-        #         element_act.append(element_act[len(element_act)-4])
-        #         row_count += 1
-        #     while row_count > 150:
-        #         element_act.pop(len(element_act)-1)
-        #         element_act.pop(len(element_act)-1)
-        #         element_act.pop(len(element_act)-1)
-        #         row_count-=1
-        # testData.append(element_act)
+
         minrow = min(row_count, minrow)
         maxrow = max(row_count, maxrow)
         testData.append(returneaza_vector_important(Xs, Ys, Zs))
@@ -138,7 +111,7 @@ with open('train_labels.csv') as csv_file:
         else:
             train_labels.append(int(float(row[1])))
 
-types = [None, "standardized", "min_max"]
+types = [None, "standardized"]
 
 
 def normalize_data(train_data, test_data, typed=None):
@@ -167,14 +140,14 @@ def normalize_data(train_data, test_data, typed=None):
 
 
 def svm_classifier_linear(train_data, train_labelss, test_data, c):
-    modelSVM = svm.SVC(c, "linear")
+    modelSVM = svm.SVC(c, "linear",gamma='auto')
     modelSVM.fit(train_data, train_labelss)
     train_labels_predicted = modelSVM.predict(train_data)
     test_labels_predicted = modelSVM.predict(test_data)
     return train_labels_predicted, test_labels_predicted
 
 def svm_classifier_rbf(train_data, train_labelss, test_data, c):
-    modelSVM = svm.SVC(c, "linear")
+    modelSVM = svm.SVC(c, "rbf")
     modelSVM.fit(train_data, train_labelss)
     train_labels_predicted = modelSVM.predict(train_data)
     test_labels_predicted = modelSVM.predict(test_data)
@@ -185,24 +158,19 @@ def compute_accuracy(true_labels, predicted_labels):
     return (true_labels == predicted_labels).mean()
 
 
-Cs = [5e-2, 1e-1, 1]
+Cs = [0.1, 0.5]
 bestprob = 0
 bestC = 0
 linbest=True
-# trainData, testData = normalize_data(trainData, testData, "standardized")
-# trainData, testData = normalize_data(trainData, testData, "min_max")
-# trainData, testData = normalize_data(trainData, testData, "l1")
-# trainData, testData = normalize_data(trainData, testData, "l2")
 print("Urmeaza verificarea\n")
 besttype=None
 for type in types:
-    trainData, testData=normalize_data(trainData,testData,type)
+    trainData, testData = normalize_data(trainData, testData, type)
 
     for C in Cs:
         train_labels_predictedd, test_labels_predictedd = svm_classifier_linear(trainData, train_labels, testData, C)
         prob = compute_accuracy(train_labels, train_labels_predictedd)
         print("linear "+str(prob)+" " + str(C))
-        # print("abs( 0.9 - prob) = " + str(absd(0.9-prob))+" abs(0.9 - bestprob) = " + str(absd(0.9-bestprob)))
         if abs(1-prob) < abs(1-bestprob):
 
             bestprob = prob
@@ -210,15 +178,15 @@ for type in types:
             bestC = C
             print("S-a schimbat C-ul:" + str(bestC))
 
-    for C in Cs:
-        train_labels_predictedd, test_labels_predictedd = svm_classifier_rbf(trainData, train_labels, testData, C)
-        prob = compute_accuracy(train_labels, train_labels_predictedd)
-        print("rbf "+str(prob)+" " +str(C))
-        if abs(1-prob)<abs(1-bestprob):
-            bestprob = prob
-            besttype=type
-            bestC = C
-            linbest=False
+    # for C in Cs:
+    #     train_labels_predictedd, test_labels_predictedd = svm_classifier_rbf(trainData, train_labels, testData, C)
+    #     prob = compute_accuracy(train_labels, train_labels_predictedd)
+    #     print("rbf "+str(prob)+" " +str(C))
+    #     if abs(1-prob)<abs(1-bestprob):
+    #         bestprob = prob
+    #         besttype=type
+    #         bestC = C
+    #         linbest=False
 
 print(besttype)
 trainData,testData=normalize_data(trainData,testData,besttype)

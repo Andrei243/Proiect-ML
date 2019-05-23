@@ -8,21 +8,20 @@ import statistics as st
 csv_writer = csv.writer(open('submission.csv'))
 
 
-def absd(x):
-    if x > 0:
-        return x
-    else:
-        return -x
-
-
-def imparte_vectori_in_cate_40(Xs):
+def imparte_vectori(xs):
     vector = []
-    el=[]
-    for i in range(0,len(Xs)):
-        if i%40==0 and i!=0:
+    el = []
+    for i in range(0,136):
+        if i % 25 == 0 and i != 0:
             vector.append(el)
             el=[]
-        el.append(Xs[i])
+        el.append(xs[i])
+    if len(el)!=0:
+        vector.append(el)
+    if len(xs) > 136:
+        for i in range(136, len(xs)):
+            el.append(xs[i])
+        vector.append(el)
     return vector
 
 
@@ -39,16 +38,18 @@ def returneaza_statistici_importante(Xs):
     return date
 
 
-def returneaza_vector_important(Xs,Ys,Zs):
+def returneaza_vector_important(Xs, Ys, Zs):
     elemente_importante=[]
 
     vectori=[]
-    vectori=vectori + imparte_vectori_in_cate_40(Xs)+imparte_vectori_in_cate_40(Ys)+imparte_vectori_in_cate_40(Zs)
+    vectori= vectori + imparte_vectori(Xs) + imparte_vectori(Ys) + imparte_vectori(Zs)
     for vector in vectori:
         elemente_importante=elemente_importante+returneaza_statistici_importante(vector)
 
+    elemente_importante = elemente_importante + returneaza_statistici_importante(Xs)
+    elemente_importante = elemente_importante + returneaza_statistici_importante(Ys)
+    elemente_importante = elemente_importante + returneaza_statistici_importante(Zs)
     return elemente_importante
-
 
 
 trainData = []
@@ -64,24 +65,10 @@ for i in range(10000, 24000):
             Ys = []
             Zs = []
             for row in csv_reader:
-                # element_act.append(float(row[0]))
                 Xs.append(float(row[0]))
-                # element_act.append(float(row[1]))
                 Ys.append(float(row[1]))
-                # element_act.append(float(row[2]))
                 Zs.append(float(row[2]))
-            #     row_count+=1
-            # while row_count < 150:
-            #     element_act.append(element_act[len(element_act)-4])
-            #     element_act.append(element_act[len(element_act)-4])
-            #     element_act.append(element_act[len(element_act)-4])
-            #     row_count += 1
-            # while row_count > 150:
-            #     element_act.pop(len(element_act) - 1)
-            #     element_act.pop(len(element_act) - 1)
-            #     element_act.pop(len(element_act) - 1)
-            #     row_count-=1
-        # trainData.append(element_act)
+
         trainData.append(returneaza_vector_important(Xs, Ys, Zs))
 print("Gata traindata")
 testData = []
@@ -97,25 +84,10 @@ for i in range(10000, 24001):
             Ys = []
             Zs = []
             for row in csv_reader:
-                # element_act.append(float(row[0]))
                 Xs.append(float(row[0]))
-                # element_act.append(float(row[1]))
                 Ys.append(float(row[1]))
-                # element_act.append(float(row[2]))
                 Zs.append(float(row[2]))
-        #         row_count+=1
-        #
-        #     while row_count < 150:
-        #         element_act.append(element_act[len(element_act)-4])
-        #         element_act.append(element_act[len(element_act)-4])
-        #         element_act.append(element_act[len(element_act)-4])
-        #         row_count += 1
-        #     while row_count > 150:
-        #         element_act.pop(len(element_act)-1)
-        #         element_act.pop(len(element_act)-1)
-        #         element_act.pop(len(element_act)-1)
-        #         row_count-=1
-        # testData.append(element_act)
+
         testData.append(returneaza_vector_important(Xs, Ys, Zs))
 print("Gata testdata")
 train_labels = []
@@ -176,43 +148,37 @@ def compute_accuracy(true_labels, predicted_labels):
     return (true_labels == predicted_labels).mean()
 
 
-Cs = [1e-4, 1e-2, 5e-2, 1e-1, 1, 10, 50, 100, 1000, 10000]
+Cs = [1e-1, 1]
 bestprob = 0
 bestC = 0
 linbest=True
-# trainData, testData = normalize_data(trainData, testData, "standardized")
-# trainData, testData = normalize_data(trainData, testData, "min_max")
-# trainData, testData = normalize_data(trainData, testData, "l1")
-# trainData, testData = normalize_data(trainData, testData, "l2")
-print("Urmeaza verificarea\n")
-# besttype=None
-# for type in types:
-#     trainData, testData=normalize_data(trainData,testData,type)
-#
-#     for C in Cs:
-#         train_labels_predictedd, test_labels_predictedd = svm_classifier_linear(trainData, train_labels, testData, C)
-#         prob = compute_accuracy(train_labels, train_labels_predictedd)
-#         print("linear "+str(prob)+" " + str(C))
-#         # print("abs( 0.9 - prob) = " + str(absd(0.9-prob))+" abs(0.9 - bestprob) = " + str(absd(0.9-bestprob)))
-#         if absd(0.95-prob) < absd(0.95-bestprob):
-#
-#             bestprob = prob
-#             besttype=type
-#             bestC = C
-#             print("S-a schimbat C-ul:" + str(bestC))
-#
-#     for C in Cs:
-#         train_labels_predictedd, test_labels_predictedd = svm_classifier_rbf(trainData, train_labels, testData, C)
-#         prob = compute_accuracy(train_labels, train_labels_predictedd)
-#         print("rbf "+str(prob)+" " +str(C))
-#         if abs(0.95-prob)<abs(0.95-bestprob):
-#             bestprob = prob
-#             besttype=type
-#             bestC = C
-#             linbest=False
 
-# print(besttype)
+print("Urmeaza verificarea\n")
+
+
+trainData,testData=normalize_data(trainData,testData,"min_max")
+
 trainData,testData=normalize_data(trainData,testData,"standardized")
+for C in Cs:
+    train_labels_predictedl, test_labels_predictedl = svm_classifier_linear(trainData, train_labels, testData, C)
+    prob = compute_accuracy(train_labels, train_labels_predictedl)
+    print("linear "+str(prob)+" " + str(C))
+    if abs(1-prob) < abs(1-bestprob):
+        bestprob = prob
+        besttype=type
+        bestC = C
+        print("S-a schimbat C-ul:" + str(bestC))
+    train_labels_predictedr, test_labels_predictedr = svm_classifier_rbf(trainData, train_labels, testData, C)
+    prob = compute_accuracy(train_labels, train_labels_predictedr)
+    print("rbf "+str(prob)+" " +str(C))
+    if abs(1-prob)<abs(1-bestprob):
+        bestprob = prob
+        besttype=type
+        bestC = C
+        print("S-a schimbat C-ul:" + str(bestC))
+        linbest=False
+
+
 
 if linbest:
     print("linear")
